@@ -12,3 +12,5 @@ struct InterfaceButtons {
   Fl_Button *close_program_button;
   InterfaceButtons();
 };
+
+
