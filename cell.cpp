@@ -3,6 +3,7 @@
 #include "cell.h"
 #include "board.h"
 #include "visualboard.h"
+#include "game.h"
 
 //cell.cpp
 Cell::Cell() {
@@ -17,13 +18,6 @@ void cell_pushed(Fl_Widget *widget, void *data);
 int step_from_edge = 50;
 int button_size = 100;
 
-Cell::Cell (int X, int Y) {
-  this->crd.first = X;
-  this->crd.second = Y;
-  this->button = new Fl_Button(step_from_edge + button_size * X, step_from_edge + button_size * Y, button_size, button_size, "");
-  this->button->color(FL_WHITE);
-  this->button->callback(cell_pushed, (void*)&(this->crd));
-}
 
 Cell::~Cell() {
   delete this->button;
@@ -37,10 +31,11 @@ int cross_win_id = 10;//and put
 int zero_win_id = 20;//and put
 int draw_id = -1;
 
-void cell_pushed(Fl_Widget *widget, void *data) {
+void Game::cell_pushed(Fl_Widget *widget, void *data) {
+
     std::pair <int, int> *xy = (std::pair <int, int>*)data;
     std::cout << "Pushed: " << (*xy).first << ' ' << (*xy).second << "\n";
-    int check_pos_id = our_board.check_pos((*xy).first, (*xy).second);
+    int check_pos_id = this->our_board.check_pos((*xy).first, (*xy).second);
     if (check_pos_id == cell_occupied_id) {
       std::cout << "cell occupied\n";
       return;
@@ -50,11 +45,11 @@ void cell_pushed(Fl_Widget *widget, void *data) {
       return;
     }
     if (check_pos_id == put_cross_id) {
-      our_visual_board.playing_field[(*xy).second][(*xy).first]->button->color(FL_RED);
+      this->our_visual_board.playing_field[(*xy).second][(*xy).first]->button->color(FL_RED);
       std::cout<<"put cross\n";
       return;
     } else if (check_pos_id == put_zero_id) {
-      our_visual_board.playing_field[(*xy).second][(*xy).first]->button->color(FL_BLUE);
+      this->our_visual_board.playing_field[(*xy).second][(*xy).first]->button->color(FL_BLUE);
       std::cout<<"put zero\n";
       return;
     }
@@ -65,17 +60,25 @@ void cell_pushed(Fl_Widget *widget, void *data) {
     
     if (game_over_id == draw_id) {
       if (our_board.moved - 1 == 1) {
-        our_visual_board.playing_field[(*xy).second][(*xy).first]->button->color(FL_RED);
+        this->our_visual_board.playing_field[(*xy).second][(*xy).first]->button->color(FL_RED);
       } else{
-        our_visual_board.playing_field[(*xy).second][(*xy).first]->button->color(FL_BLUE);
+        this->our_visual_board.playing_field[(*xy).second][(*xy).first]->button->color(FL_BLUE);
       }
     }
     //cout << "game_o"
     if (game_over_id == cross_win_id) {
-      our_visual_board.playing_field[(*xy).second][(*xy).first]->button->color(FL_RED);
+      this->our_visual_board.playing_field[(*xy).second][(*xy).first]->button->color(FL_RED);
     } else if (game_over_id == zero_win_id) {
-      our_visual_board.playing_field[(*xy).second][(*xy).first]->button->color(FL_BLUE);
+      this->our_visual_board.playing_field[(*xy).second][(*xy).first]->button->color(FL_BLUE);
     }
     game_is_over = true;
     game_over(game_over_id);
+}
+
+Cell::Cell (int X, int Y) {
+  this->crd.first = X;
+  this->crd.second = Y;
+  this->button = new Fl_Button(step_from_edge + button_size * X, step_from_edge + button_size * Y, button_size, button_size, "");
+  this->button->color(FL_WHITE);
+  this->button->callback(cell_pushed, (void*)&(this->crd));
 }
